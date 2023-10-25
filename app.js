@@ -2,7 +2,20 @@ const tilesEl = document.getElementsByClassName("tiles")[0];
 const keysEl = document.getElementsByClassName("keys")[0];
 const messagesEl = document.getElementsByClassName("messages")[0];
 
-const word = "SUPER";
+let wordle;
+
+(function fetchWordle() {
+  fetch("http://localhost:8000/word")
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      wordle = json.word.toUpperCase();
+    })
+    .catch(err => {
+      console.log(err);
+    });
+})();
+
 const keys = [
   "Q",
   "W",
@@ -94,12 +107,12 @@ const checkRow = () => {
   if (currentTile < 5) return;
   const guess = guessRows[currentRow].join("");
   flipTiles();
-  if (guess === word) {
-    showMessage(`You Win! The word was ${word}`);
+  if (guess === wordle) {
+    showMessage(`You Win! The word was ${wordle}`);
     isGameOver = true;
   } else if (currentRow >= 5) {
     isGameOver = true;
-    showMessage(`Game Over! The word was ${word}`);
+    showMessage(`Game Over! The word was ${wordle}`);
     return;
   } else if (currentRow < 5) {
     currentRow++;
@@ -126,10 +139,10 @@ const flipTiles = () => {
 
     setTimeout(() => {
       tile.classList.add("flip");
-      if (tileLetter === word[index]) {
+      if (tileLetter === wordle[index]) {
         tile.classList.add("green-overlay");
         addColorToKey(tileLetter, "green-overlay");
-      } else if (word.includes(tileLetter)) {
+      } else if (wordle.includes(tileLetter)) {
         tile.classList.add("yellow-overlay");
         addColorToKey(tileLetter, "yellow-overlay");
       } else {
