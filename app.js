@@ -1,7 +1,6 @@
 const tilesEl = document.getElementsByClassName("tiles")[0];
 const keysEl = document.getElementsByClassName("keys")[0];
 const messagesEl = document.getElementsByClassName("messages")[0];
-
 let wordle;
 
 (function fetchWordle() {
@@ -103,27 +102,45 @@ const deleteLetter = () => {
   guessRows[currentRow][currentTile] = "";
 };
 
+const checkWordle = guess => {
+  fetch(`http://localhost:8000/check/?guess=${guess}`)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      if (json.result_message === "Entry word not found") {
+        showMessage("Not a Word");
+        return;
+      } else {
+        flipTiles();
+        if (guess === wordle) {
+          showMessage(`You Win! The word was ${wordle}`);
+          isGameOver = true;
+        } else if (currentRow >= 5) {
+          isGameOver = true;
+          showMessage(`Game Over! The word was ${wordle}`);
+          return;
+        } else if (currentRow < 5) {
+          currentRow++;
+          currentTile = 0;
+        }
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    });
+};
+
 const checkRow = () => {
   if (currentTile < 5) return;
   const guess = guessRows[currentRow].join("");
-  flipTiles();
-  if (guess === wordle) {
-    showMessage(`You Win! The word was ${wordle}`);
-    isGameOver = true;
-  } else if (currentRow >= 5) {
-    isGameOver = true;
-    showMessage(`Game Over! The word was ${wordle}`);
-    return;
-  } else if (currentRow < 5) {
-    currentRow++;
-    currentTile = 0;
-  }
+  checkWordle(guess);
 };
 
 const showMessage = message => {
   const messageEl = document.createElement("p");
   messageEl.textContent = message;
   messagesEl.append(messageEl);
+  setTimeout(() => messagesEl.removeChild(messageEl), 2000);
 };
 
 const addColorToKey = (keyLetter, color) => {

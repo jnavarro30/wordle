@@ -29,6 +29,29 @@ app.get("/word", (req, res) => {
   })();
 });
 
+app.get("/check", (req, res) => {
+  const { guess } = req.query;
+  const options = {
+    method: "GET",
+    url: "https://twinword-word-graph-dictionary.p.rapidapi.com/definition/",
+    params: { entry: guess },
+    headers: {
+      "X-RapidAPI-Key": "de58b97feemsh3d6b45a024cf57cp1be277jsn9e0052b8fd4f",
+      "X-RapidAPI-Host": "twinword-word-graph-dictionary.p.rapidapi.com",
+    },
+  };
+  (async function checkWordle() {
+    try {
+      const response = await axios.request(options);
+      console.log(response.data);
+      const result_message = response.data.result_msg;
+      res.send({ result_message });
+    } catch (error) {
+      console.error(error);
+    }
+  })();
+});
+
 app.listen(PORT, () => {
   console.log(`Server is listening on PORT: ${PORT}`);
 });
